@@ -16,18 +16,22 @@ public class NonScalableService implements MiniScalabilityService {
     queries = new HashSet<>();
   }
 
+  @Override
   public synchronized void addUser(final String u) {
     users.add(u);
   }
 
+  @Override
   public synchronized void addQuery(final String q) {
     queries.add(q);
   }
 
+  @Override
   public synchronized void removeUser(final String u) {
     users.remove(u);
   }
 
+  @Override
   public synchronized void removeQuery(final String q) {
     queries.remove(q);
   }

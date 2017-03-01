@@ -16,25 +16,29 @@ public class SlightlyMoreScalable implements MiniScalabilityService {
     queries = new HashSet<>();
   }
 
+  @Override
   public void addUser(final String u) {
     synchronized (users) {
       users.add(u);
     }
   }
 
-  public synchronized void addQuery(final String q) {
+  @Override
+  public void addQuery(final String q) {
     synchronized (queries) {
       queries.add(q);
     }
   }
 
-  public synchronized void removeUser(final String u) {
+  @Override
+  public void removeUser(final String u) {
     synchronized (users) {
       users.remove(u);
     }
   }
 
-  public synchronized void removeQuery(final String q) {
+  @Override
+  public void removeQuery(final String q) {
     synchronized (queries) {
       queries.remove(q);
     }
