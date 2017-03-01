@@ -9,14 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import edu.uw.os.service.MiniScalabilityService;
 
-@Controller
+@Controller(value = "/")
 public class MiniScalabilityController {
 
   private static final Logger LOG = LoggerFactory.getLogger(MiniScalabilityController.class);
@@ -24,10 +24,10 @@ public class MiniScalabilityController {
 	@Autowired
   private MiniScalabilityService service;
 
-  @RequestMapping(value = "/user/{userid}", method = RequestMethod.PUT)
+  @RequestMapping(value = "/user", method = RequestMethod.PUT)
 	@ResponseStatus(value = HttpStatus.CREATED)
 	public @ResponseBody
-      void processUserRequest(@PathVariable(value = "userid") final String userId) throws IOException {
+      void processUserRequest(@RequestBody final String userId) throws IOException {
     service.processUserRequest(userId);
 	}
 

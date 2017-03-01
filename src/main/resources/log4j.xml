@@ -19,12 +19,12 @@
 	</appender>
 	
 	<logger name="edu.uw.os" additivity="false">
-		<level value="INFO" />
+		<level value="DEBUG" />
 		<appender-ref ref="appender" />
 	</logger>
 	
 	<root>
-		<priority value="INFO" />
+		<priority value="DEBUG" />
 		<appender-ref ref="appender" />
 	</root>
 </log4j:configuration>
