@@ -27,29 +27,11 @@ public class MiniScalabilityController {
   @RequestMapping(value = "/user/{userid}", method = RequestMethod.PUT)
 	@ResponseStatus(value = HttpStatus.CREATED)
 	public @ResponseBody
-      void addUser(@PathVariable(value = "userid") final String userId) throws IOException {
-    service.addUser(userId);
+      void processUserRequest(@PathVariable(value = "userid") final String userId) throws IOException {
+    service.processUserRequest(userId);
 	}
 
-  @RequestMapping(value = "/query/{queryid}", method = RequestMethod.PUT)
-  @ResponseStatus(value = HttpStatus.CREATED)
-  public @ResponseBody void addQuery(@PathVariable(value = "queryid") final String queryId) throws IOException {
-    service.addQuery(queryId);
-  }
-
-  @RequestMapping(value = "/user/{userid}", method = RequestMethod.DELETE)
-  @ResponseStatus(value = HttpStatus.NO_CONTENT)
-  public @ResponseBody void removeUser(@PathVariable(value = "userid") final String userId) throws IOException {
-    service.removeUser(userId);
-  }
-
-  @RequestMapping(value = "/query/{queryid}", method = RequestMethod.DELETE)
-  @ResponseStatus(value = HttpStatus.NO_CONTENT)
-  public @ResponseBody void removeQuery(@PathVariable(value = "queryid") final String queryId) throws IOException {
-    service.removeQuery(queryId);
-  }
-
-	@ExceptionHandler({ IllegalArgumentException.class, IOException.class,
+  @ExceptionHandler({ IllegalArgumentException.class, IOException.class,
 			NullPointerException.class })
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Bad Request")
 	public void handleException(final Exception ex,
