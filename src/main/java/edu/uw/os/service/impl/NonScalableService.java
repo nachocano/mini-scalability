@@ -25,12 +25,12 @@ public class NonScalableService implements MiniScalabilityService {
     final long time = System.currentTimeMillis();
     LOG.debug("{}:{}", u, time);
     usersLastLogin.put(u, time);
-    //    try {
-    //      // do some processing
-    //      Thread.sleep(500);
-    //    } catch (final InterruptedException e) {
-    //      LOG.error("Interrupted while updating user last login");
-    //      throw new RuntimeException();
-    //    }
+        try {
+          // do some processing
+          Thread.sleep(10);
+        } catch (final InterruptedException e) {
+          LOG.error("Interrupted while updating user last login");
+          throw new RuntimeException();
+        }
   }
 }
