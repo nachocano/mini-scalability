@@ -6,13 +6,19 @@ class UserBehavior(TaskSet):
         """ on_start is called when a Locust start before any task is scheduled """
         pass
 
-    @task(1)
+    @task
+    def my_task(self):
+        from gevent.pool import Group
+        group = Group()
+        group.spawn(user)
+        group.spawn(query)
+        group.join()
+
     def user(self):
         uid = random.randint(0, 10000000000)
         self.client.put("/user/{}".format(uid))
         self.client.delete("/user/{}".format(uid))
 
-    @task(2)
     def query(self):
         qid = random.randint(0, 10000000000)
         self.client.put("/query/{}".format(qid))
