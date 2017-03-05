@@ -12,7 +12,7 @@ assert args.nr_descriptors > 0
 assert args.max_threads >= 1
 
 def main(args):
-  impls = ['lowest', 'lowest -l', 'any', 'any -l']
+  impls = ['lowest', 'lowest -l', 'lowest -l -f', 'any', 'any -l', 'any -l -f']
   for impl in impls:
     for t in xrange(1,args.max_threads+1):
       for k in xrange(5):

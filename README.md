@@ -33,7 +33,7 @@ Instructions
 2. Inside REPO_HOME, compile java sources using ```mvn clean package assembly:single```.
 
 3. Execute the python runner script using the following command
-    ```python -u REPO_HOME/runner.py -e REPO_HOME/target/mini-scalability-jar-with-dependencies.jar -d DESCRIPTORS -m MAX_THREADS -t TIMES > REPO_HOME/output.txt```
+    ```python -u REPO_HOME/scripts/runner.py -e REPO_HOME/target/mini-scalability-jar-with-dependencies.jar -d DESCRIPTORS -m MAX_THREADS -t TIMES > REPO_HOME/output.txt```
 
   where:
   * DESCRIPTORS: number of file descriptors that will be simulated in the process (e.g., 1000000)
@@ -42,4 +42,4 @@ Instructions
 
 4. Grep the output file: ```grep result REPO_HOME/output.txt > REPO_HOME/output.csv```
 
-5. [Optional] Plot the results using ```python REPO_HOME/plotter.py -i REPO_HOME/output.csv -o REPO_HOME/fig.png```
+5. [Optional] Plot the results using ```python REPO_HOME/scripts/plotter.py -i REPO_HOME/output.csv -o REPO_HOME/fig.png```

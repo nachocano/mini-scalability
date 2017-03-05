@@ -36,7 +36,7 @@ def main(args):
 
   x = list(threads_s)
   fig = plt.figure()
-  fig.suptitle("Mini-Scalability Results (Commutativity paper)", fontsize=13, fontweight='bold')
+  fig.suptitle("Mini-Scalability Results", fontsize=13, fontweight='bold')
   for i in xrange(len(run_s)):
     plt.plot(x, proc_results[i])
   plt.xlabel("cores")
