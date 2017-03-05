@@ -135,7 +135,7 @@ public class FDDriver {
     final double secs = (double)(end - start) / 1000000;
     System.out.println(String.format("total time %s", secs));
     final double opsPerSec = size/secs;
-    System.out.println(String.format("%s|threads:%s,OPS:%.2f", fdImplEnum.toString(), threads, opsPerSec));
+    System.out.println(String.format("result:%s,threads:%s,OPS:%.2f", fd, threads, opsPerSec));
   }
 
   private static final class FDTask implements Callable<Integer> {
