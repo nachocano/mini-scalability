@@ -6,13 +6,10 @@ Minimal set of code to showcase some ideas from [The Scalable Commutativity Rule
 
 Requirements
 ------------
-Java >= 7
-
-Python >= 2.6
-
-Maven >= 3
-
-Matplotlib >= 1.5.3 (only if you want to generate a plot)
+* Java >= 7
+* Python >= 2.6
+* Maven >= 3
+* Matplotlib >= 1.5.3 (only if you want to generate a plot)
 
 Description
 -----------
