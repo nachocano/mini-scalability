@@ -9,12 +9,12 @@ import org.apache.commons.lang3.Validate;
 
 import edu.uw.os.syscall.fd.LowestFD;
 
-public class LowestFDImpl implements LowestFD {
+public class LowestFDLockFreeImpl implements LowestFD {
 
   private final Queue<Integer> freeFds;
   private final Map<String, Integer> fdsPerFile;
 
-  public LowestFDImpl(final int size) {
+  public LowestFDLockFreeImpl(final int size) {
     Validate.isTrue(size > 0);
     fdsPerFile = new ConcurrentHashMap<>(size);
     freeFds = new ConcurrentLinkedQueue<>();
@@ -31,5 +31,10 @@ public class LowestFDImpl implements LowestFD {
     }
     fdsPerFile.put(file, nextAvailableFd);
     return nextAvailableFd;
+  }
+
+  @Override
+  public String toString() {
+    return "lowestFDlockfree";
   }
 }

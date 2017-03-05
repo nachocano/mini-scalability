@@ -16,8 +16,10 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.Validate;
 import edu.uw.os.syscall.fd.FD;
-import edu.uw.os.syscall.fd.impl.AnyFDImpl;
-import edu.uw.os.syscall.fd.impl.LowestFDImpl;
+import edu.uw.os.syscall.fd.impl.AnyFDLockFreeImpl;
+import edu.uw.os.syscall.fd.impl.AnyFDLockedImpl;
+import edu.uw.os.syscall.fd.impl.LowestFDLockFreeImpl;
+import edu.uw.os.syscall.fd.impl.LowestFDLockedImpl;
 import edu.uw.os.syscall.util.Utils;
 
 
@@ -27,16 +29,16 @@ public class FDDriver {
     LOWEST("lowest")
     {
       @Override
-      public FD createImpl(final int size, final int threads) {
+      public FD createImpl(final int size, final int threads, final boolean locked) {
         // don't care the number of threads here
-        return new LowestFDImpl(size);
+        return locked ? new LowestFDLockedImpl(size) : new LowestFDLockFreeImpl(size);
       }
     },
     ANY("any")
     {
       @Override
-      public FD createImpl(final int size, final int threads) {
-        return new AnyFDImpl(size, threads);
+      public FD createImpl(final int size, final int threads, final boolean locked) {
+        return locked ? new AnyFDLockedImpl(size, threads) : new AnyFDLockFreeImpl(size, threads);
       }
     };
 
@@ -46,7 +48,7 @@ public class FDDriver {
       this.impl = impl;
     }
 
-    abstract FD createImpl(int size, int threads);
+    abstract FD createImpl(int size, int threads, final boolean locked);
 
     public static FDImplEnum fromString(final String impl) {
       for (final FDImplEnum type : FDImplEnum.values()) {
@@ -74,6 +76,7 @@ public class FDDriver {
     options.addOption("s", true, "size");
     options.addOption("i", true, "impl");
     options.addOption("t", true, "threads");
+    options.addOption("l", false, "locked?");
     final CommandLineParser parser = new DefaultParser();
     try {
       final CommandLine line = parser.parse(options, args);
@@ -83,8 +86,9 @@ public class FDDriver {
       fdImplEnum = FDImplEnum.fromString(implStr);
       threads = Integer.valueOf(line.getOptionValue("t"));
       Validate.isTrue(threads > 0);
+      final boolean locked = line.hasOption("l");
       executor = Executors.newFixedThreadPool(threads);
-      fd = fdImplEnum.createImpl(size, threads);
+      fd = fdImplEnum.createImpl(size, threads, locked);
     } catch (final Exception e) {
       final HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp("FDDriver", options);
@@ -97,7 +101,7 @@ public class FDDriver {
     if (threads > processors) {
       System.out.println(String.format("WARNING: more threads than processors"));
     }
-    System.out.println(String.format("threads %s, processors %s", threads, processors));
+    System.out.println(String.format("running %s, threads %s, processors %s", fd, threads, processors));
     final long start = System.nanoTime();
     final List<Future<Integer>> futures = new LinkedList<>();
     final Random rnd = new Random(17);

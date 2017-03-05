@@ -7,14 +7,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import edu.uw.os.syscall.fd.AnyFD;
 
-public class AnyFDImpl implements AnyFD {
+public class AnyFDLockFreeImpl implements AnyFD {
 
   private final Queue<Integer>[] freeFdsArray;
   private final Map<String, Integer>[] fdsPerFileArray;
   private final int threads;
 
   @SuppressWarnings("unchecked")
-  public AnyFDImpl(final int size, final int threads) {
+  public AnyFDLockFreeImpl(final int size, final int threads) {
     this.threads = threads;
     freeFdsArray = new ConcurrentLinkedQueue[threads];
     fdsPerFileArray = new ConcurrentHashMap[threads];
@@ -62,6 +62,11 @@ public class AnyFDImpl implements AnyFD {
     }
     fdsPerFileArray[idx].put(file, nextAvailableFd);
     return nextAvailableFd;
+  }
+
+  @Override
+  public String toString() {
+    return "anyFDlockfree";
   }
 
 }
