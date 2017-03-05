@@ -66,7 +66,7 @@ public class AnyFDLockFreeImpl implements AnyFD {
 
   @Override
   public String toString() {
-    return "anyFDlockfree";
+    return "anyLockFree";
   }
 
 }

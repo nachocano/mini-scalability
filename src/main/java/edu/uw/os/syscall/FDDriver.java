@@ -18,9 +18,11 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.Validate;
 import edu.uw.os.syscall.fd.FD;
 import edu.uw.os.syscall.fd.impl.AnyFDLockFreeImpl;
-import edu.uw.os.syscall.fd.impl.AnyFDLockedImpl;
+import edu.uw.os.syscall.fd.impl.LowestFDCoarseGrainedLockImpl;
+import edu.uw.os.syscall.fd.impl.AnyFDCoarseGrainedLockImpl;
+import edu.uw.os.syscall.fd.impl.AnyFDFineGrainedLockImpl;
 import edu.uw.os.syscall.fd.impl.LowestFDLockFreeImpl;
-import edu.uw.os.syscall.fd.impl.LowestFDLockedImpl;
+import edu.uw.os.syscall.fd.impl.LowestFDFineGrainedLockImpl;
 import edu.uw.os.syscall.util.Utils;
 
 
@@ -30,16 +32,19 @@ public class FDDriver {
     LOWEST("lowest")
     {
       @Override
-      public FD createImpl(final int size, final int threads, final boolean locked) {
+      public FD createImpl(final int size, final int threads, final boolean locked, final boolean fineGrained) {
         // don't care the number of threads here
-        return locked ? new LowestFDLockedImpl(size) : new LowestFDLockFreeImpl(size);
+        return locked ? fineGrained ? new LowestFDFineGrainedLockImpl(size) : new LowestFDCoarseGrainedLockImpl(size)
+            : new LowestFDLockFreeImpl(size);
       }
     },
     ANY("any")
     {
       @Override
-      public FD createImpl(final int size, final int threads, final boolean locked) {
-        return locked ? new AnyFDLockedImpl(size, threads) : new AnyFDLockFreeImpl(size, threads);
+      public FD createImpl(final int size, final int threads, final boolean locked, final boolean fineGrained) {
+        return locked
+            ? fineGrained ? new AnyFDFineGrainedLockImpl(size, threads) : new AnyFDCoarseGrainedLockImpl(size, threads)
+            : new AnyFDLockFreeImpl(size, threads);
       }
     };
 
@@ -49,7 +54,7 @@ public class FDDriver {
       this.impl = impl;
     }
 
-    abstract FD createImpl(int size, int threads, final boolean locked);
+    abstract FD createImpl(int size, int threads, final boolean locked, final boolean fineGrained);
 
     public static FDImplEnum fromString(final String impl) {
       for (final FDImplEnum type : FDImplEnum.values()) {
@@ -78,6 +83,7 @@ public class FDDriver {
     options.addOption("i", true, "impl");
     options.addOption("t", true, "threads");
     options.addOption("l", false, "locked?");
+    options.addOption("f", false, "fine-grained lock?");
     final CommandLineParser parser = new DefaultParser();
     try {
       final CommandLine line = parser.parse(options, args);
@@ -88,8 +94,9 @@ public class FDDriver {
       threads = Integer.valueOf(line.getOptionValue("t"));
       Validate.isTrue(threads > 0);
       final boolean locked = line.hasOption("l");
+      final boolean fineGrained = line.hasOption("f");
       executor = Executors.newFixedThreadPool(threads);
-      fd = fdImplEnum.createImpl(size, threads, locked);
+      fd = fdImplEnum.createImpl(size, threads, locked, fineGrained);
     } catch (final Exception e) {
       final HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp("FDDriver", options);
@@ -132,7 +139,7 @@ public class FDDriver {
       executor.shutdown();
     }
     //System.out.println(Arrays.toString(descriptors.toArray()));
-    final double secs = (double)(end - start) / 1000000;
+    final double secs = (double) (end - start) / 1000000000;
     System.out.println(String.format("total time %s", secs));
     final double opsPerSec = size/secs;
     System.out.println(String.format("result:%s,threads:%s,OPS:%.2f", fd, threads, opsPerSec));

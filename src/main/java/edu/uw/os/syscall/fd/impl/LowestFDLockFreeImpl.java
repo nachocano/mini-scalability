@@ -35,6 +35,6 @@ public class LowestFDLockFreeImpl implements LowestFD {
 
   @Override
   public String toString() {
-    return "lowestFDlockfree";
+    return "lowestLockFree";
   }
 }
