@@ -9,7 +9,7 @@ Requirements
 * Java >= 7
 * Python >= 2.6
 * Maven >= 3
-* Matplotlib >= 1.5.3 (only if you want to generate a plot)
+* gnuplot >= 5.0 (only if you want to generate a plot)
 
 Description
 -----------
@@ -40,6 +40,6 @@ Instructions
   * MAX_THREADS: maximum number of threads. There will be a total of MAX_THREADS tests for each configuration, i.e., the tests will run using the following thread interval [1,MAX_THREADS].
   * TIMES: number of executions of each configuration, in order to average the results later.
 
-4. Grep the output file: ```grep result REPO_HOME/output.txt > REPO_HOME/output.csv```
+4. [Optional] Generate the file for plotting: ```grep result REPO_HOME/output.txt > REPO_HOME/output.csv; python scripts/parse_output.py -i REPO_HOME/output.csv > REPO_HOME/output.dat```
 
-5. [Optional] Plot the results using ```python REPO_HOME/scripts/plotter.py -i REPO_HOME/output.csv -o REPO_HOME/fig.png```
+5. [Optional] Plot the results using ```gnuplot -e "input='REPO_HOME/output.dat'" REPO_HOME/scripts/plotter.plt```. The plot is saved in ```REPO_HOME/output.eps```.

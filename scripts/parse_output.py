@@ -1,16 +1,21 @@
 from __future__ import division
 import argparse
 from collections import defaultdict
-import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('-i', '--input_file', required=True, help='grepped result file (grep result <output>)')
-parser.add_argument('-o', '--output_file', required=True, help='output figure file')
 args = parser.parse_args()
+
+def print_relative(run_s, avgs, threads_s, start=0):
+  for i, run in enumerate(run_s):
+    relative = avgs[(run, threads_s[-1])]/avgs[(run, threads_s[0])]
+    print '%s,%s,%s' % (i+start,run,relative)
+
 
 def main(args):
   threads_s = set()
-  run_s = set()
+  run_lowest_s = set()
+  run_any_s = set()
   results = defaultdict(list)
   with open(args.input_file, 'r') as f:
     for line in f.read().splitlines():
@@ -19,32 +24,27 @@ def main(args):
       threads = int(elements[1].split(':')[1])
       ops = float(elements[2].split(':')[1])
       results[(run, threads)].append(ops)
-      run_s.add(run)
       threads_s.add(threads)
+      if run.startswith('lowest'):
+        run_lowest_s.add(run)
+      else:
+        run_any_s.add(run)      
   # get the averages of the runs
   avgs = {}
   for key in results.keys():
     avgs[key] = sum(results[key])/len(results[key])
-    #print key, avgs[key]
 
-  proc_results = []
-  for run in run_s:
-    tmp = []
-    for threads in threads_s:
-      tmp.append(avgs[(run,threads)])
-    proc_results.append(tmp)
+  threads_s = sorted(threads_s)
+  run_lowest_s = sorted(run_lowest_s)
+  run_any_s = sorted(run_any_s)
 
-  x = list(threads_s)
-  fig = plt.figure()
-  fig.suptitle("Mini-Scalability Results", fontsize=13, fontweight='bold')
-  for i in xrange(len(run_s)):
-    plt.plot(x, proc_results[i])
-  plt.xlabel("cores")
-  plt.ylabel("Avg. OPS")
-  plt.legend(run_s)
-  plt.xticks(x)
-  #plt.show()  
-  fig.savefig(args.output_file)
+  # we will just plot the throughput max cores / throughput 1 core
+
+  # header
+  print 'index,name,relative_throughput'
+  print_relative(run_lowest_s, avgs, threads_s)
+  print_relative(run_any_s, avgs, threads_s, start=len(run_lowest_s))
+
 
 if __name__ == '__main__':
   main(args)  
