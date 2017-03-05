@@ -39,7 +39,7 @@ def main(args):
   fig.suptitle("Mini-Scalability Results (Commutativity paper)", fontsize=13, fontweight='bold')
   for i in xrange(len(run_s)):
     plt.plot(x, proc_results[i])
-  plt.xlabel("threads")
+  plt.xlabel("cores")
   plt.ylabel("Avg. OPS")
   plt.legend(run_s)
   plt.xticks(x)
