@@ -1,5 +1,6 @@
 package edu.uw.os.syscall;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -102,22 +103,27 @@ public class FDDriver {
       System.out.println(String.format("WARNING: more threads than processors"));
     }
     System.out.println(String.format("running %s, threads %s, processors %s", fd, threads, processors));
-    final long start = System.nanoTime();
-    final List<Future<Integer>> futures = new LinkedList<>();
     final Random rnd = new Random(17);
+    final List<Callable<Integer>> tasks = new ArrayList<>(size);
+    System.out.println(String.format("generating %s tasks", size));
     for (int i = 0; i < size; i++) {
       // 10-char file names, assumming that we don't have repeated files
       final String file = Utils.generateRandom(rnd, 10);
-      final Future<Integer> future = executor.submit(new FDTask(fd, file));
-      futures.add(future);
+      final Callable<Integer> task = new FDTask(fd, file);
+      tasks.add(task);
     }
+    System.out.println("done generating tasks");
     final List<Integer> descriptors = new LinkedList<Integer>();
+    long start = 0;
+    long end = 0;
     try {
-
+      start = System.nanoTime();
+      final List<Future<Integer>> futures = executor.invokeAll(tasks);
       for (final Future<Integer> future : futures) {
         final Integer descriptor = future.get();
         descriptors.add(descriptor);
       }
+      end = System.nanoTime();
     } catch (final InterruptedException e) {
       System.err.println(String.format("interrupted exception: %s", e.getMessage()));
     } catch (final ExecutionException e) {
@@ -126,7 +132,6 @@ public class FDDriver {
       executor.shutdown();
     }
     //System.out.println(Arrays.toString(descriptors.toArray()));
-    final long end = System.nanoTime();
     final double secs = (double)(end - start) / 1000000;
     System.out.println(String.format("total time %s", secs));
     final double opsPerSec = size/secs;
