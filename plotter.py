@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('-i', '--input_file', required=True, help='grepped result file (grep result <output>)')
+parser.add_argument('-o', '--output_file', required=True, help='output figure file')
 args = parser.parse_args()
 
 def main(args):
@@ -24,7 +25,7 @@ def main(args):
   avgs = {}
   for key in results.keys():
     avgs[key] = sum(results[key])/len(results[key])
-    print key, avgs[key]
+    #print key, avgs[key]
 
   proc_results = []
   for run in run_s:
@@ -42,7 +43,8 @@ def main(args):
   plt.ylabel("Avg. OPS")
   plt.legend(run_s)
   plt.xticks(x)
-  plt.show()  
+  #plt.show()  
+  fig.savefig(args.output_file)
 
 if __name__ == '__main__':
   main(args)  
