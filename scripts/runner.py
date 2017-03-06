@@ -17,7 +17,7 @@ def main(args):
   impls = ['lowest', 'lowest -l', 'lowest -l -f', 'any', 'any -l', 'any -l -f']
   for impl in impls:
     for c in xrange(1,args.max_cores+1):
-      for k in xrange(5):
+      for t in xrange(args.times):
         cmd = 'java -jar %s -i %s -s %s -t %s -c %s' % (args.executable, impl, args.nr_descriptors, args.client_threads, c)
         print 'executing %s' % cmd
         os.system(cmd)
