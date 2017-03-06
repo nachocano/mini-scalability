@@ -9,11 +9,11 @@ public class AnyFDCoarseGrainedLockImpl extends AbstractAnyFDLock {
   @Override
   public synchronized int creat(final String file) {
     final long tid = Thread.currentThread().getId();
-    int idx = (int) tid % cores;
+    int idx = (int) tid % threads;
     Integer nextAvailableFd = freeFdsArray[idx].poll();
     if (nextAvailableFd == null) {
-      // some cores must have already exhausted theirs "fds", they help the others
-      int newIdx = cores - 1;
+      // some cores must have already exhausted theirs "FDs", they help the others
+      int newIdx = threads - 1;
       while (newIdx >= 0) {
         if (newIdx != idx) {
           nextAvailableFd = freeFdsArray[newIdx].poll();
@@ -23,9 +23,6 @@ public class AnyFDCoarseGrainedLockImpl extends AbstractAnyFDLock {
           }
         }
         newIdx--;
-      }
-      if (nextAvailableFd == null) {
-        return -1;
       }
     }
     fdsPerFileArray[idx].put(file, nextAvailableFd);

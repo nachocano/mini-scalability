@@ -32,8 +32,8 @@ public class FDDriver {
     LOWEST("lowest")
     {
       @Override
-      public FD createImpl(final int size, final int cores, final boolean locked, final boolean fineGrained) {
-        // don't care the number of cores here
+      public FD createImpl(final int size, final int threads, final boolean locked, final boolean fineGrained) {
+        // don't care the number of threads here
         return locked ? fineGrained ? new LowestFDFineGrainedLockImpl(size) : new LowestFDCoarseGrainedLockImpl(size)
             : new LowestFDLockFreeImpl(size);
       }
@@ -41,10 +41,10 @@ public class FDDriver {
     ANY("any")
     {
       @Override
-      public FD createImpl(final int size, final int cores, final boolean locked, final boolean fineGrained) {
+      public FD createImpl(final int size, final int threads, final boolean locked, final boolean fineGrained) {
         return locked
-            ? fineGrained ? new AnyFDFineGrainedLockImpl(size, cores) : new AnyFDCoarseGrainedLockImpl(size, cores)
-            : new AnyFDLockFreeImpl(size, cores);
+            ? fineGrained ? new AnyFDFineGrainedLockImpl(size, threads) : new AnyFDCoarseGrainedLockImpl(size, threads)
+            : new AnyFDLockFreeImpl(size, threads);
       }
     };
 
@@ -54,7 +54,7 @@ public class FDDriver {
       this.impl = impl;
     }
 
-    abstract FD createImpl(int size, int cores, final boolean locked, final boolean fineGrained);
+    abstract FD createImpl(int size, int threads, final boolean locked, final boolean fineGrained);
 
     public static FDImplEnum fromString(final String impl) {
       for (final FDImplEnum type : FDImplEnum.values()) {
@@ -73,7 +73,6 @@ public class FDDriver {
 
   private final int size;
   private final int threads;
-  private final int cores;
   private final ExecutorService executor;
   private final FDImplEnum fdImplEnum;
   private final FD fd;
@@ -83,7 +82,6 @@ public class FDDriver {
     options.addOption("s", true, "size");
     options.addOption("i", true, "impl");
     options.addOption("t", true, "threads");
-    options.addOption("c", true, "cores");
     options.addOption("l", false, "locked?");
     options.addOption("f", false, "fine-grained lock?");
     final CommandLineParser parser = new DefaultParser();
@@ -97,14 +95,8 @@ public class FDDriver {
       Validate.isTrue(threads > 0);
       final boolean locked = line.hasOption("l");
       final boolean fineGrained = line.hasOption("f");
-      final boolean hasCores = line.hasOption("c");
-      if (hasCores) {
-        cores = Integer.valueOf(line.getOptionValue("c"));
-      } else {
-        cores = Runtime.getRuntime().availableProcessors();
-      }
       executor = Executors.newFixedThreadPool(threads);
-      fd = fdImplEnum.createImpl(size, cores, locked, fineGrained);
+      fd = fdImplEnum.createImpl(size, threads, locked, fineGrained);
     } catch (final Exception e) {
       final HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp("FDDriver", options);
@@ -113,9 +105,11 @@ public class FDDriver {
   }
 
   public void run() {
-    final int proc = Runtime.getRuntime().availableProcessors();
-    System.out
-        .println(String.format("running %s with threads %s and cores %s; actual cores %s", fd, threads, cores, proc));
+    final int processors = Runtime.getRuntime().availableProcessors();
+    if (threads > processors) {
+      System.out.println(String.format("WARNING: more threads than processors"));
+    }
+    System.out.println(String.format("running %s, threads %s, processors %s", fd, threads, processors));
     final Random rnd = new Random(17);
     final List<Callable<Integer>> tasks = new ArrayList<>(size);
     System.out.println(String.format("generating %s tasks", size));
@@ -148,7 +142,7 @@ public class FDDriver {
     final double secs = (double) (end - start) / 1000000000;
     System.out.println(String.format("total time %s", secs));
     final double opsPerSec = size/secs;
-    System.out.println(String.format("result:%s,cores:%s,OPS:%.2f", fd, cores, opsPerSec));
+    System.out.println(String.format("result:%s,threads:%s,OPS:%.2f", fd, threads, opsPerSec));
   }
 
   private static final class FDTask implements Callable<Integer> {

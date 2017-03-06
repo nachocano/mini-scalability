@@ -14,7 +14,7 @@ Requirements
 Description
 -----------
 
-We implemented *dummy* versions of the ```creat``` syscall in user space. The implementations always return a fd (i.e., we assumed the method is invoked with *new* file names) or -1 if there are no fds available for the process. We did not focus on the *correct* logic, but rather on showcasing how these *dummy* versions can scale up. We used some of the techniques highlighted in the above papers. In particular, we provide 6 implementations:
+We implemented *dummy* versions of the ```creat``` syscall in user space. The implementations always return a fd (i.e., we assumed the method is invoked with *new* file names) or -1 if there are no fds available for the process. We did not focus on the *real* logic, but rather on showcasing how these *dummy* versions can scale up. We used some of the techniques highlighted in the above papers. In particular, we provide 6 implementations:
 
 * Lowest FD: the interface returns the *lowest* file descriptor available (non-commutative).
   * Coarse Grained Lock: holds a coarse-grained lock to update the data structures.
@@ -33,12 +33,11 @@ Instructions
 2. Inside REPO_HOME, compile java sources using ```mvn clean package assembly:single```.
 
 3. Execute the python runner script using the following command
-    ```python -u REPO_HOME/scripts/runner.py -e REPO_HOME/target/mini-scalability-jar-with-dependencies.jar -d DESCRIPTORS -m MAX_CORES -c CLIENTS -t TIMES > REPO_HOME/output.txt```
+    ```python -u REPO_HOME/scripts/runner.py -e REPO_HOME/target/mini-scalability-jar-with-dependencies.jar -d DESCRIPTORS -m MAX_THREADS -t TIMES > REPO_HOME/output.txt```
 
   where:
   * DESCRIPTORS: number of file descriptors that will be simulated in the process (e.g., 1000000)
-  * MAX_CORES: maximum number of cores. There will be a total of MAX_CORES tests for each configuration, i.e., the tests will run using the following cores interval [1,MAX_CORES].
-  * CLIENTS: the number of concurrent client that will exercise the syscall.
+  * MAX_THREADS: maximum number of threads. There will be a total of MAX_THREADS tests for each configuration, i.e., the tests will run using the following thread interval [1,MAX_THREADS].
   * TIMES: number of executions of each configuration, in order to average the results later.
 
 4. [Optional] Generate the file for plotting: ```grep result REPO_HOME/output.txt > REPO_HOME/output.csv; python scripts/parse_output.py -i REPO_HOME/output.csv > REPO_HOME/output.dat```
